@@ -40,7 +40,7 @@ Disclaimer:     This script is provided "as is" with no warranties.
 Connect-AzAccount
 Get-AzTenant (if not using the default tenant)
 Set-AzContext -tenantID "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx" (if not using the default tenant)
-.\Create-Azure-Blob-Storage-SFTP <"your Azure subscription name here"> <"your spoke name here"> <"your allowed (public) client IP address or range here">
+.\Create-Azure-Blob-Storage-SFTP -SubscriptionName <"your Azure subscription name here"> -Spoke <"your spoke name here"> -AllowedIP <"your allowed (public) client IP address or range here">
 
 -> .\Create-Azure-Blob-Storage-SFTP -SubscriptionName sub-prd-myh-corp-01 -Spoke prd -AllowedIP 89.198.143.219
 
