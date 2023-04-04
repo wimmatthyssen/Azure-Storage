@@ -22,8 +22,6 @@ Update the NetworkRule property of the Storage account with the allowed client I
 Enable SFTP support.
 Lock the resource group with a CanNotDelete lock.
 
-** Keep in mind that this feature is currently in Public Preview. **
-
 .NOTES
 
 Filename:       Create-Azure-Blob-Storage-SFTP.ps1
