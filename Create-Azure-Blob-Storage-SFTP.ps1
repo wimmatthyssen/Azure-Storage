@@ -20,7 +20,7 @@ Upgrade the Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities.
 Set the log and metrics settings for the storage account resource if they don't exist.
 Update the NetworkRule property of the Storage account with the allowed client IP addresses or IP ranges.
 Enable SFTP support.
-Lock the resource group with a CanNotDelete lock
+Lock the resource group with a CanNotDelete lock.
 
 ** Keep in mind that this feature is currently in Public Preview. **
 
