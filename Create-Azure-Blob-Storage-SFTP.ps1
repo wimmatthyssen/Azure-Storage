@@ -32,7 +32,7 @@ Last modified:  02/04/2023
 Author:         Wim Matthyssen
 Version:        1.0
 PowerShell:     Azure PowerShell and Azure Cloud Shell
-Requires:       PowerShell Az (v9.3.0)
+Requires:       PowerShell Az (v9.4.0)
 Action:         Change variables were needed to fit your needs. 
 Disclaimer:     This script is provided "as is" with no warranties.
 
