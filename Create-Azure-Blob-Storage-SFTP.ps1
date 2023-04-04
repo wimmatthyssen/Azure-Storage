@@ -15,7 +15,7 @@ Change the current context to the specified subscription.
 Store a specified set of tags in a hash table.
 Register the required Azure resource provider feature "AllowSFTP" in the current subscription context, if not yet registered.
 Create a resource group for the storage account if it does not already exist. Also apply the necessary tags to this resource group.
-Create a general-purpose v2 storage account for the File Share with specific configuration settings if it does not already exist. Also apply the necessary tags to this storage account.
+Create a general-purpose v2 storage account with specific configuration settings if it does not already exist. Also apply the necessary tags to this storage account.
 Upgrade the Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities.
 Set the log and metrics settings for the storage account resource if they don't exist.
 Update the NetworkRule property of the Storage account with the allowed client IP addresses or IP ranges.
