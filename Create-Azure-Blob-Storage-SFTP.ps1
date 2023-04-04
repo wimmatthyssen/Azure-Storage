@@ -47,7 +47,7 @@ Set-AzContext -tenantID "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx" (if not using the defa
 
 .LINK
 
-https://wmatthyssen.com/2023/02/02/create-an-azure-files-share-in-a-specified-subscription-using-an-azure-powershell-script/
+https://wmatthyssen.com/2023/04/04/create-an-sftp-enabled-azure-storage-account-within-a-specified-subscription-using-an-azure-powershell-script/
 #>
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
