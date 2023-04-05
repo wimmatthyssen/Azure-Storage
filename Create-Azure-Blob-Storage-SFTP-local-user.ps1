@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
 
-A script used to create an Azure Blob Storage with SSH File Transfer Protocol (SFTP) enabled.
+A script used to create a specified local user for use with a storage account with SSH File Transfer Protocol (SFTP) enabled.
 
 .DESCRIPTION
 
-A script used to create an Azure Blob Storage with SSH File Transfer Protocol (SFTP) enabled.
+A script used to create a specified local user for use with a storage account with SSH File Transfer Protocol (SFTP) enabled.
 This script will do all of the following:
 
 Remove the breaking change warning messages.
