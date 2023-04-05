@@ -15,7 +15,9 @@ Change the current context to the specified subscription.
 Store a specified set of tags in a hash table.
 Register the required Azure resource provider feature "AllowSFTP" in the current subscription context, if not yet registered.
 Create a resource group for the storage account if it does not already exist. Also apply the necessary tags to this resource group.
-Create a general-purpose v2 storage account with specific configuration settings if it does not already exist. Also apply the necessary tags to this storage account.
+Create a general-purpose v2 storage account if it does not already exist; otherwise, exit the script. Also apply the necessary tags to this storage account.
+Create a container if it does not exist. Also apply the necessary meta data to this container.
+Modify the storage account to set Blob public access and storage account key access to disabled.
 Upgrade the Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities.
 Set the log and metrics settings for the storage account resource if they don't exist.
 Update the NetworkRule property of the Storage account with the allowed client IP addresses or IP ranges.
@@ -26,9 +28,9 @@ Lock the resource group with a CanNotDelete lock.
 
 Filename:       Create-Azure-Blob-Storage-SFTP.ps1
 Created:        02/04/2023
-Last modified:  02/04/2023
+Last modified:  05/04/2023
 Author:         Wim Matthyssen
-Version:        1.0
+Version:        2.0
 PowerShell:     Azure PowerShell and Azure Cloud Shell
 Requires:       PowerShell Az (v9.4.0)
 Action:         Change variables were needed to fit your needs. 
@@ -80,6 +82,8 @@ $storageAccountSkuName = "Standard_LRS" #"Standard_ZRS" "Standard_GRS" "Standard
 $storageAccountType = "StorageV2"
 $storageMinimumTlsVersion = "TLS1_2"
 $storageAccountDiagnosticsName = "diag" + "-" + $storageAccountName
+
+$storageContainerName = #<your storage account container name here> The name of your new storage account container. Example: "file-upload"
 
 $tagSpokeName = #<your environment tag name here> The environment tag name you want to use. Example:"Env"
 $tagSpokeValue = "$($spoke[0].ToString().ToUpper())$($spoke.SubString(1))"
@@ -187,13 +191,20 @@ Write-Host ($writeEmptyLine + "# Resource group $rgNameStorage available" + $wri
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-## Create a general-purpose v2 storage account with specific configuration settings if it does not already exist. Also apply the necessary tags to this storage account
+## Create a general-purpose v2 storage account if it does not already exist; otherwise, exit the script. Also apply the necessary tags to this storage account
 
 try {
-    Get-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -ErrorAction Stop | Out-Null 
+	$storageAccountObject = Get-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -ErrorAction Stop
+    Write-Host ($writeEmptyLine + "# Storage account already exists, please validate" + $writeSeperatorSpaces + $currentTime)`
+    -foregroundcolor $foregroundColor3 $writeEmptyLine
+    Start-Sleep -s 3
+    Write-Host -NoNewLine ("# Press any key to exit the script ..." + $writeEmptyLine)`
+    -foregroundcolor $foregroundColor1 $writeEmptyLine;
+    $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null;
+    return
 } catch {
-    New-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -SkuName $storageAccountSkuName -Location $region -Kind $storageAccountType `
-    -AllowBlobPublicAccess $false -AllowSharedKeyAccess $false  -MinimumTlsVersion $storageMinimumTlsVersion | Out-Null 
+    $storageAccountObject = New-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -SkuName $storageAccountSkuName -Location $region -Kind $storageAccountType `
+    -AllowBlobPublicAccess $true -AllowSharedKeyAccess $true -MinimumTlsVersion $storageMinimumTlsVersion
 }
 
 # Save variable tags in a new variable to add tags
@@ -206,6 +217,26 @@ $tagsStorageAccount += @{$tagSkuName = $tagSkuValue}
 Set-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -Tag $tagsStorageAccount | Out-Null
 
 Write-Host ($writeEmptyLine + "# Storage account $storageAccountName created" + $writeSeperatorSpaces + $currentTime)`
+-foregroundcolor $foregroundColor2 $writeEmptyLine
+
+## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Create a container if it does not exist. Also apply the necessary meta data to this container
+
+$storageContext = $storageAccountObject.Context
+
+New-AzStorageContainer -Name $storageContainerName -Context $storageContext | Out-Null
+
+Write-Host ($writeEmptyLine + "# Container $storageContainerName created" + $writeSeperatorSpaces + $currentTime)`
+-foregroundcolor $foregroundColor2 $writeEmptyLine
+
+## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Modify the storage account to set Blob public access and storage account key access to disabled
+
+Set-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -AllowBlobPublicAccess $false -AllowSharedKeyAccess $false | Out-Null
+
+Write-Host ($writeEmptyLine + "# Storage account $storageAccountName public blob and storage account key access set to disabled" + $writeSeperatorSpaces + $currentTime)`
 -foregroundcolor $foregroundColor2 $writeEmptyLine
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
