@@ -77,7 +77,7 @@ $rgNameStorage = #<your storage account resource group name here> The name of th
 
 $logAnalyticsWorkSpaceName = #<your Log Analytics workspace name here> The name of your existing Log Analytics workspace. Example: "law-hub-myh-01"
 
-$storageAccountName = #<your storage account name here> The name of your new storage account. Example: "sthubmyhlog01"
+$storageAccountName = #<your storage account name here> The name of your new storage account. Example: "stprdmyhsftp01"
 $storageAccountSkuName = "Standard_LRS" #"Standard_ZRS" "Standard_GRS" "Standard_RAGRS" "Premium_LRS" "Premium_ZRS" "Standard_GZRS" "Standard_RAGZRS"
 $storageAccountType = "StorageV2"
 $storageMinimumTlsVersion = "TLS1_2"
