@@ -16,8 +16,8 @@ Store a specified set of tags in a hash table.
 Register the required Azure resource provider feature "AllowSFTP" in the current subscription context, if not yet registered.
 Create a resource group for the storage account if it does not already exist. Also apply the necessary tags to this resource group.
 Create a general-purpose v2 storage account if it does not already exist; otherwise, exit the script. Also apply the necessary tags to this storage account.
-Create a container if it does not exist. Also apply the necessary meta data to this container.
-Modify the storage account to set Blob public access and storage account key access to disabled.
+Create a container in the storage account if it does not exist.
+Modify the storage account to set blob public access and storage account key access to disabled.
 Upgrade the Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities.
 Set the log and metrics settings for the storage account resource if they don't exist.
 Update the NetworkRule property of the Storage account with the allowed client IP addresses or IP ranges.
@@ -221,7 +221,7 @@ Write-Host ($writeEmptyLine + "# Storage account $storageAccountName created" + 
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-## Create a container if it does not exist. Also apply the necessary meta data to this container
+## Create a container in the storage account if it does not exist
 
 $storageContext = $storageAccountObject.Context
 
@@ -232,7 +232,7 @@ Write-Host ($writeEmptyLine + "# Container $storageContainerName created" + $wri
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-## Modify the storage account to set Blob public access and storage account key access to disabled
+## Modify the storage account to set blob public access and storage account key access to disabled
 
 Set-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -AllowBlobPublicAccess $false -AllowSharedKeyAccess $false | Out-Null
 
