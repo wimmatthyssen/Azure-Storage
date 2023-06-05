@@ -28,9 +28,9 @@ Lock the resource group with a CanNotDelete lock.
 
 Filename:       Create-Azure-Blob-Storage-SFTP.ps1
 Created:        02/04/2023
-Last modified:  05/04/2023
+Last modified:  05/06/2023
 Author:         Wim Matthyssen
-Version:        2.0
+Version:        2.1
 PowerShell:     Azure PowerShell and Azure Cloud Shell
 Requires:       PowerShell Az (v9.4.0)
 Action:         Change variables were needed to fit your needs. 
@@ -43,7 +43,7 @@ Get-AzTenant (if not using the default tenant)
 Set-AzContext -tenantID "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx" (if not using the default tenant)
 .\Create-Azure-Blob-Storage-SFTP -SubscriptionName <"your Azure subscription name here"> -Spoke <"your spoke name here"> -AllowedIP <"your allowed (public) client IP address or range here">
 
--> .\Create-Azure-Blob-Storage-SFTP -SubscriptionName sub-prd-myh-corp-01 -Spoke prd -AllowedIP 89.198.143.219
+-> .\Create-Azure-Blob-Storage-SFTP -SubscriptionName sub-hub-myh-management-01 -Spoke hub -AllowedIP 89.198.143.219
 
 .LINK
 
