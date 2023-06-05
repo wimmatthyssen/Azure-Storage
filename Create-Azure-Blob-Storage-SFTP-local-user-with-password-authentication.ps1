@@ -18,9 +18,9 @@ Export the SSH password to a txt file in the C:\Temp folder.
 
 Filename:       Create-Azure-Blob-Storage-SFTP-local-user-with-password-authentication.ps1
 Created:        04/04/2023
-Last modified:  18/04/2023
+Last modified:  05/06/2023
 Author:         Wim Matthyssen
-Version:        1.1
+Version:        1.5
 PowerShell:     Azure PowerShell and Azure Cloud Shell
 Requires:       PowerShell Az (v9.4.0)
 Action:         Change variables were needed to fit your needs. 
@@ -33,11 +33,11 @@ Get-AzTenant (if not using the default tenant)
 Set-AzContext -tenantID "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx" (if not using the default tenant)
 .\Create-Azure-Blob-Storage-SFTP-local-user-with-password-authentication -SubscriptionName <"your Azure subscription name here"> -UserName <"your local user name here"> -ContainerName <"your storage acocunt container name here">
 
--> .\Create-Azure-Blob-Storage-SFTP-local-user-with-password-authentication.ps1 -SubscriptionName sub-prd-myh-corp-01 -ContainerName file-upload -userName wmsftp01
+-> .\Create-Azure-Blob-Storage-SFTP-local-user-with-password-authentication.ps1 -SubscriptionName sub-hub-myh-management-01 -Spoke hub -ContainerName file-upload -userName wmsftp01
 
 .LINK
 
-https://wmatthyssen.com/2023/04/18/create-a-local-user-with-password-authentication-for-a-sftp-enabled-storage-account-using-an-azure-powershell-script/
+https://github.com/wimmatthyssen/Azure-Storage/blob/e26ab50af428d165d32ca6eaf407319ec0e64dff/Create-Azure-Blob-Storage-SFTP-local-user-with-password-authentication.ps1
 #>
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -47,6 +47,8 @@ https://wmatthyssen.com/2023/04/18/create-a-local-user-with-password-authenticat
 param(
     # $subscriptionName -> Name of the Azure Subscription
     [parameter(Mandatory =$true)][ValidateNotNullOrEmpty()] [string] $subscriptionName,
+    # $spoke -> Name of the spoke
+    [parameter(Mandatory =$true)][ValidateNotNullOrEmpty()] [string] $spoke,
     # $containerName -> Name of the container
     [parameter(Mandatory =$true)][ValidateNotNullOrEmpty()] [string] $containerName,
     # $userName -> Name of the user
@@ -62,7 +64,7 @@ $tempFolder = "C:\" + $tempFolderName +"\"
 $itemType = "Directory"
 
 $rgNameStorage = #<your storage account resource group name here> The name of the Azure resource group in which your new or existing storage account is deployed. Example: "rg-hub-myh-storage-01"
-$storageAccountName = #<your storage account name here> The name of your new storage account. Example: "stprdmyhsftp01"
+$storageAccountName = #<your storage account name here> The name of your new storage account. Example: "sthubmyhsftp01"
 
 $global:currenttime= Set-PSBreakpoint -Variable currenttime -Mode Read -Action {$global:currenttime= Get-Date -UFormat "%A %m/%d/%Y %R"}
 $foregroundColor1 = "Green"
