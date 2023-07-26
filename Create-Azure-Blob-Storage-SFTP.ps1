@@ -69,11 +69,12 @@ param(
 
 $region = #<your region here> The used Azure public region. Example: "westeurope"
 $purpose = "Sftp"
+$storageAccountObject = $null
 
 $featureName = "AllowSFTP"
 $providerNameSpace = "Microsoft.Storage"
 
-$rgNameStorage = #<your storage account resource group name here> The name of the Azure resource group in which your new or existing storage account is deployed. Example: "rg-hub-myh-storage-01"
+$rgNameStorage = #<your storage account resource group name here> The name of the Azure resource group in which your new or existing storage account is deployed. Example: "rg-hub-myh-sftp-01"
 
 $logAnalyticsWorkSpaceName = #<your Log Analytics workspace name here> The name of your existing Log Analytics workspace. Example: "law-hub-myh-01"
 
@@ -86,7 +87,7 @@ $storageAccountDiagnosticsName = "diag" + "-" + $storageAccountName
 $storageContainerName = #<your storage account container name here> The name of your new storage account container. Example: "file-upload"
 
 $tagSpokeName = #<your environment tag name here> The environment tag name you want to use. Example:"Env"
-$tagSpokeValue = "$($spoke[0].ToString().ToUpper())$($spoke.SubString(1))"
+$tagSpokeValue = #<your environment tag value here> The environment tag value you want to use. Example: "Hub"
 $tagCostCenterName  = #<your costCenter tag name here> The costCenter tag name you want to use. Example:"CostCenter"
 $tagCostCenterValue = #<your costCenter tag value here> The costCenter tag value you want to use. Example: "23"
 $tagCriticalityName = #<your businessCriticality tag name here> The businessCriticality tag name you want to use. Example: "Criticality"
@@ -95,7 +96,7 @@ $tagPurposeName  = #<your purpose tag name here> The purpose tag name you want t
 $tagSkuName = "Sku"
 $tagSkuValue = $storageAccountSkuName
 
-$global:currenttime= Set-PSBreakpoint -Variable currenttime -Mode Read -Action {$global:currenttime= Get-Date -UFormat "%A %m/%d/%Y %R"}
+Set-PSBreakpoint -Variable currenttime -Mode Read -Action {$global:currenttime = Get-Date -Format "dddd MM/dd/yyyy HH:mm"} | Out-Null 
 $foregroundColor1 = "Green"
 $foregroundColor2 = "Yellow"
 $writeEmptyLine = "`n"
