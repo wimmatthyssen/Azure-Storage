@@ -16,7 +16,7 @@ Store a specified set of tags in a hash table.
 Create a resource group for the storage account if it does not already exist. Also, apply the necessary tags to this resource group.
 Create a resource group for the networking resources if one does not already exist. Also, apply the necessary tags to this resource group.
 Create a general-purpose v2 storage account if it does not already exist; otherwise, exit the script. Also, apply the necessary tags to this storage account.
-Set the log and metrics settings for the storage account resource if they don't exist.
+Set the log and metrics settings for the storage account and blob resource if they don't exist.
 Enable blob soft delete.
 Enable container soft delete.
 Enable static website hosting.
@@ -246,23 +246,43 @@ Write-Host ($writeEmptyLine + "# Storage account $storageAccountName created" + 
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-## Set the log and metrics settings for the storage account resource if they don't exist
+## Set the log and metrics settings for the storage account and blob resource if they don't exist
 
+# Log and metrics settings for the storage account
 $storageAccount = Get-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName
-
+ 
 try {
     Get-AzDiagnosticSetting -Name $storageAccountDiagnosticsName -ResourceId ($storageAccount.Id) -ErrorAction Stop | Out-Null
 } catch { 
     $metric = @()
-    $metric = New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category AllMetrics 
-    $log = @()
-    $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category StorageRead 
-    $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category StorageWrite 
-    $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category StorageDelete 
+    $metric += New-AzDiagnosticSettingMetricSettingsObject -Enabled $true -Category AllMetrics
     New-AzDiagnosticSetting -Name $storageAccountDiagnosticsName -ResourceId ($storageAccount.Id) -WorkspaceId ($workSpace.ResourceId) -Log $log -Metric $metric | Out-Null
 }
 
-Write-Host ($writeEmptyLine + "# Storage account $storageAccountName diagnostic settings set" + $writeSeperatorSpaces + $currentTime)`
+# Log and metrics settings for blob
+$resourceId = ($storageAccount.Id) + "/blobServices/default"
+$log = @()
+$metric = @()
+
+# Get diagnostic settings categories for blob
+$categories = Get-AzDiagnosticSettingCategory -ResourceId $resourceId
+
+# Create diagnostic setting for all supported categories
+$categories | ForEach-Object {
+    if ($_.CategoryType -eq "Metrics") {
+        $metric += New-AzDiagnosticSettingMetricSettingsObject -Enabled $true -Category $_.Name
+    } else {
+        $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category $_.Name
+    }
+}
+
+try {
+    Get-AzDiagnosticSetting -Name $storageAccountDiagnosticsName -ResourceId $resourceId -ErrorAction Stop | Out-Null
+} catch { 
+    New-AzDiagnosticSetting -Name $storageAccountDiagnosticsName -ResourceId $resourceId -WorkspaceId ($workSpace.ResourceId) -Log $log -Metric $metric | Out-Null
+}
+
+Write-Host ($writeEmptyLine + "# Storage account $storageAccountName and blob diagnostic settings set" + $writeSeperatorSpaces + $currentTime)`
 -foregroundcolor $foregroundColor2 $writeEmptyLine
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -384,7 +404,7 @@ Write-Host ($writeEmptyLine + "# CDN endpoint with name $cdnEndPointName created
 
 ## Set the log and metrics settings for the CDN profile if they don't exist
 
-$cdnProfile = Get-AzCdnEndpoint -ProfileName $cdnProfileName -ResourceGroupName $rgNameNetworking 
+$cdnProfile = Get-AzCdnProfile -Name $cdnProfileName -ResourceGroupName $rgNameNetworking 
 
 $log = @()
 $metric = @()
@@ -448,4 +468,3 @@ Write-Host ($writeEmptyLine + "# Script completed" + $writeSeperatorSpaces + $cu
 -foregroundcolor $foregroundColor1 $writeEmptyLine 
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
