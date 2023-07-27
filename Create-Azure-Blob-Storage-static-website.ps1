@@ -20,7 +20,7 @@ Set the log and metrics settings for the storage account and blob resource if th
 Enable blob soft delete.
 Enable container soft delete.
 Enable static website hosting.
-Modify the storage account to set blob public access and storage account key access to disabled.
+Modify the storage account to set blob public access to disabled.
 Lock the storage account resource group with a CanNotDelete lock.
 Lock the networking resource group with a CanNotDelete lock.
 Get the public URL of the static website from the storage account and store it as a variable for later use.
@@ -316,11 +316,11 @@ Write-Host ($writeEmptyLine + "# Static website hosting enabled for storage acco
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-## Modify the storage account to set blob public access and storage account key access to disabled
+## Modify the storage account to set blob public access to disabled
 
-Set-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -AllowBlobPublicAccess $false -AllowSharedKeyAccess $false | Out-Null
+Set-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName -AllowBlobPublicAccess $false | Out-Null
 
-Write-Host ($writeEmptyLine + "# Storage account $storageAccountName public blob and storage account key access set to disabled" + $writeSeperatorSpaces + $currentTime)`
+Write-Host ($writeEmptyLine + "# Storage account $storageAccountName public blob set to disabled" + $writeSeperatorSpaces + $currentTime)`
 -foregroundcolor $foregroundColor2 $writeEmptyLine
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
