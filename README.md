@@ -12,3 +12,8 @@ Currently this repository holds the following scritps:
 - **Create-Azure-Blob-Storage-SFTP.ps1**
 
    More information about this script used to create an Azure storage account with SFTP support enabled within a specific subscription can be found on my blog: https://wmatthyssen.com/2023/04/04/create-an-sftp-enabled-azure-storage-account-within-a-specified-subscription-using-an-azure-powershell-script/
+
+- **Create-Azure-Blob-Storage-static-website.ps1**
+
+   More information about this script used to create an Azure storage account to host a static website within a specific subscription can be found on my blog: https://wmatthyssen.com/2023/07/11/create-an-azure-storage-account-to-host-a-static-website-within-a-specified-subscription-using-an-azure-powershell-script/
+  
