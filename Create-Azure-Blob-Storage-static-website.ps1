@@ -14,7 +14,6 @@ Save the Log Analytics workspace from the management subscription as a variable.
 Change the current context to the specified subscription.
 Store a specified set of tags in a hash table.
 Create a resource group for the storage account if it does not already exist. Also, apply the necessary tags to this resource group.
-Create a resource group for the networking resources if one does not already exist. Also, apply the necessary tags to this resource group.
 Create a general-purpose v2 storage account if it does not already exist; otherwise, exit the script. Also, apply the necessary tags to this storage account.
 Set the log and metrics settings for the storage account and blob resource if they don't exist.
 Enable blob soft delete.
@@ -22,12 +21,6 @@ Enable container soft delete.
 Enable static website hosting.
 Modify the storage account to set blob public access to disabled.
 Lock the storage account resource group with a CanNotDelete lock.
-Lock the networking resource group with a CanNotDelete lock.
-Get the public URL of the static website from the storage account and store it as a variable for later use.
-Create an Azure CDN profile if it does not already exist.
-Create a CDN endpoint if it does not already exist.
-Set the log and metrics settings for the CDN profile if they don't exist.
-Set the log and metrics settings for the CDN endpoint if they don't exist.
 
 .NOTES
 
@@ -75,7 +68,6 @@ $purpose = "Web"
 $storageAccountObject = $null
 
 $rgNameStorage = #<your storage account resource group name here> The name of the Azure resource group in which your storage account will be deployed. Example: "rg-hub-myh-web-01"
-$rgNameNetworking = #<your networking resource group name here> The name of the Azure resource group in which your networking resources will be deployed. Example: "rg-hub-myh-networking-01"
 
 $logAnalyticsWorkSpaceName = #<your Log Analytics workspace name here> The name of your existing Log Analytics workspace. Example: "law-hub-myh-01"
 
@@ -90,14 +82,6 @@ $containerSoftDeleteRetentionDays = 7
 
 $indexDocumentName = "index.html"
 $errorDocumentName = "404.html"
-
-$cdnProfileName = #<your CDN profile name here> The name of your CDN profile. Example: "cdpn-hub-myh-we-01"
-$cdnSku = "Standard_Microsoft" #"Standard_Verizon "Premium_Verizon" "Custom_Verizon" "Standard_Akamai" "Standard_ChinaCdn"
-$cdnLocation = $region #"Global"
-$cdnDiagnosticsName = "diag" + "-" + $cdnProfileName
-
-$cdnEndPointName = "cdne" + "-" + $storageAccountName
-$cdnEndPointDiagnosticsName = "diag" + "-" + $cdnEndPointName
 
 $tagSpokeName = #<your environment tag name here> The environment tag name you want to use. Example:"Env"
 $tagSpokeValue = #<your environment tag value here> The environment tag value you want to use. Example: "Hub"
@@ -188,30 +172,6 @@ $tagsResourceGroup = $tags
 Set-AzResourceGroup -Name $rgNameStorage -Tag $tagsResourceGroup | Out-Null
 
 Write-Host ($writeEmptyLine + "# Resource group $rgNameStorage available" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-## Create a resource group for the networking resources if one does not already exist. Also, apply the necessary tags to this resource group
-
-try {
-    Get-AzResourceGroup -Name $rgNameNetworking -ErrorAction Stop | Out-Null 
-} catch {
-    New-AzResourceGroup -Name $rgNameNetworking -Location $region -Force | Out-Null 
-
-    # Save variable tags in a new variable to add tags to the resource group
-    $tagsResourceGroup = $tags
-
-    # Set tags for the networking resource group
-    Set-AzResourceGroup -Name $rgNameNetworking -Tag $tagsResourceGroup | Out-Null
-
-    # Update the value of the purpose tag
-    $networkingResourceGroup = Get-AzResourceGroup -Name $rgNameNetworking
-    $mergeTag = @{$tagPurposeName="Networking";}   
-    Update-AzTag -ResourceId ($networkingResourceGroup.ResourceId) -Tag $mergeTag -Operation Merge | Out-Null 
-}
-
-Write-Host ($writeEmptyLine + "# Resource group $rgNameNetworking available" + $writeSeperatorSpaces + $currentTime)`
 -foregroundcolor $foregroundColor2 $writeEmptyLine
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -334,130 +294,6 @@ if ($null -eq $lock){
     } 
 
 Write-Host ($writeEmptyLine + "# Resource group $rgNameStorage locked" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-## Lock the networking resource group with a CanNotDelete lock
-
-$lock = Get-AzResourceLock -ResourceGroupName $rgNameNetworking
-
-if ($null -eq $lock){
-    New-AzResourceLock -LockName DoNotDeleteLock -LockLevel CanNotDelete -ResourceGroupName $rgNameNetworking -LockNotes "Prevent $rgNameNetworking from deletion" -Force | Out-Null
-    } 
-
-Write-Host ($writeEmptyLine + "# Resource group $rgNameNetworking locked" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-##  Get the public URL of the static website from the storage account and store it as a variable for later use
-
-# Get the public URL of the static website 
-$publicUrl = (Get-AzStorageAccount -ResourceGroupName $rgNameStorage -Name $storageAccountName).PrimaryEndpoints.Web
-
-# Remove "https://" and trailing slashes from the public URL
-$publicUrl = $publicUrl -replace "https://", "" -replace "/", ""
-
-Write-Host ($writeEmptyLine + "# Public URL of the static website stored as a variable" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Create an Azure CDN profile if it does not already exist
-
-try {
-    Get-AzCdnProfile -ResourceGroupName $rgNameNetworking -Name $cdnProfileName -ErrorAction Stop | Out-Null 
-} catch {
-    New-AzCdnProfile -ResourceGroupName $rgNameNetworking -Name $cdnProfileName -SkuName $cdnSku -Location $cdnLocation | Out-Null 
-}
-
-# Save variable tags in a new variable to add tags
-$tagsCdn = $tags
-
-# Set tags CDN profile
-Update-AzCdnProfile -ResourceGroupName $rgNameNetworking -Name $cdnProfileName -Tag $tagsCdn | Out-Null
-
-Write-Host ($writeEmptyLine + "# CDN profile $cdnProfileName created" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-## Create a CDN endpoint if it does not already exist
-
-# Define the origin for the CDN endpoint
-$origin = @{
-	Name = "staticwebsiteorigin"
-	HostName = $publicUrl
-}
-
-try {
-    Get-AzCdnEndpoint -Name $cdnEndPointName -ProfileName $cdnProfileName -ResourceGroupName $rgNameNetworking -ErrorAction Stop | Out-Null
-} catch { 
-    New-AzCdnEndpoint -Name $cdnEndPointName -ProfileName $cdnProfileName -ResourceGroupName $rgNameNetworking -Location $cdnLocation -Origin $origin -IsHttpsAllowed | Out-Null
-}
-
-Write-Host ($writeEmptyLine + "# CDN endpoint with name $cdnEndPointName created" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-## Set the log and metrics settings for the CDN profile if they don't exist
-
-$cdnProfile = Get-AzCdnProfile -Name $cdnProfileName -ResourceGroupName $rgNameNetworking 
-
-$log = @()
-$metric = @()
-
-# Get diagnostic settings categories for the given CDN profile
-$categories = Get-AzDiagnosticSettingCategory -ResourceId ($cdnProfile.Id)
-
-# Create diagnostic setting for all supported categories
-$categories | ForEach-Object {
-    if ($_.CategoryType -eq "Metrics") {
-        $metric += New-AzDiagnosticSettingMetricSettingsObject -Enabled $true -Category $_.Name
-    } else {
-        $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category $_.Name
-    }
-}
-
-try {
-    Get-AzDiagnosticSetting -Name $cdnDiagnosticsName -ResourceId ($cdnProfile.Id) -ErrorAction Stop | Out-Null
-} catch { 
-    New-AzDiagnosticSetting -Name $cdnDiagnosticsName -ResourceId ($cdnProfile.Id) -WorkspaceId ($workSpace.ResourceId) -Log $log -Metric $metric | Out-Null
-}
-
-Write-Host ($writeEmptyLine + "# CDN profile $cdnProfileName diagnostic settings set" + $writeSeperatorSpaces + $currentTime)`
--foregroundcolor $foregroundColor2 $writeEmptyLine
-
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-## Set the log and metrics settings for the CDN endpoint if they don't exist
-
-$cdnEndpoint = Get-AzCdnEndpoint -Name $cdnEndPointName -ProfileName $cdnProfileName -ResourceGroupName $rgNameNetworking 
-
-$log = @()
-$metric = @()
-
-# Get diagnostic settings categories for the given CDN profile
-$categories = Get-AzDiagnosticSettingCategory -ResourceId ($cdnEndpoint.Id)
-
-# Create diagnostic setting for all supported categories
-$categories | ForEach-Object {
-    if ($_.CategoryType -eq "Metrics") {
-        $metric += New-AzDiagnosticSettingMetricSettingsObject -Enabled $true -Category $_.Name
-    } else {
-        $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $true -Category $_.Name
-    }
-}
-
-try {
-    Get-AzDiagnosticSetting -Name $cdnEndPointDiagnosticsName -ResourceId ($cdnEndpoint.Id) -ErrorAction Stop | Out-Null
-} catch { 
-    New-AzDiagnosticSetting -Name $cdnEndPointDiagnosticsName -ResourceId ($cdnEndpoint.Id) -WorkspaceId ($workSpace.ResourceId) -Log $log -Metric $metric | Out-Null
-}
-
-Write-Host ($writeEmptyLine + "# CDN endpoint $cdnEndPointName diagnostic settings set" + $writeSeperatorSpaces + $currentTime)`
 -foregroundcolor $foregroundColor2 $writeEmptyLine
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
