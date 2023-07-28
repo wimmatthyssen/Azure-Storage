@@ -47,7 +47,7 @@ Set-AzContext -tenantID "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx" (if not using the defa
 
 .LINK
 
-
+https://wmatthyssen.com/2023/07/19/combine-a-static-website-hosted-on-an-azure-storage-account-with-azure-cdn-by-using-an-azure-powershell-script/
 #>
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
