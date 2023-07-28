@@ -17,3 +17,6 @@ Currently this repository holds the following scritps:
 
    More information about this script used to create an Azure storage account to host a static website within a specific subscription can be found on my blog: https://wmatthyssen.com/2023/07/11/create-an-azure-storage-account-to-host-a-static-website-within-a-specified-subscription-using-an-azure-powershell-script/
   
+- **Combine-Azure-Blob-Storage-static-website-with-CDN.ps1**
+
+   More information about this script used to integrate a static website running on an Azure storage account with Azure Content Delivery Network (CDN) within a specific subscription can be found on my blog: https://wmatthyssen.com/2023/07/19/combine-a-static-website-hosted-on-an-azure-storage-account-with-azure-cdn-by-using-an-azure-powershell-script/
