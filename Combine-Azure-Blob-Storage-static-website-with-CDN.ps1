@@ -19,6 +19,7 @@ Check if the storage account exists; otherwise, exit the script.
 Check if static website hosting is enabled on the storage account; otherwise, exit the script.
 Get the public URL of the static website from the storage account and store it as a variable for later use.
 Create an Azure CDN profile if it does not already exist.
+Check AzureCDN endpoint name availability.
 Create a CDN endpoint if it does not already exist.
 Configure CDN endpoint compression.
 Set the log and metrics settings for the CDN profile if they don't exist.
@@ -383,4 +384,3 @@ Write-Host ($writeEmptyLine + "# Script completed" + $writeSeperatorSpaces + $cu
 -foregroundcolor $foregroundColor1 $writeEmptyLine 
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
